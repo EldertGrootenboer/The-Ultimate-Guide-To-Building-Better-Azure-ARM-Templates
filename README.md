@@ -1,1 +1,5 @@
-# The-Ultimate-Guide-To-Building-Better-Azure-ARM-Templates
+# The Ultimate Guide To Building Better Azure ARM Templates
+
+We are all using Infrastructure as Code these days to roll out our Azure environments. For this we will most often use ARM templates, but how do we make sure we get the most out of these? There are many options, which can sometimes be overwhelming. And how do we ensure we know what is being deployed, actually will work as we want it to?
+
+In this session you will learn all about how to create even better ARM templates. Find out how to gain maximum value with minimal code, and how to prevent overburdening the users of your templates. Get to know the different constructs we can use to make re-usable templates, while still being able to keep a good overview of what is being created. Moreover, you will see how to use the right tooling to make authoring these templates even easier, and how to test them before applying them to your actual environment. We will dive into best practices, real-life samples, and of course appealing demo's
