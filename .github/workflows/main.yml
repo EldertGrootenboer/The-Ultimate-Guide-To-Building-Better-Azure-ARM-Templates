@@ -3,7 +3,7 @@ name: Deploy ARM Templates
 on:
   push:
     branches:
-      - master
+      - main
     paths:
       - ".github/workflows/main.yml"
       - "assets/demo-3-deployment/**.json"
