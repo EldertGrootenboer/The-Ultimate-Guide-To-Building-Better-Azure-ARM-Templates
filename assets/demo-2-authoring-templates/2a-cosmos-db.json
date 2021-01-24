@@ -21,7 +21,7 @@
                     "[concat('container-2')]"
                 ],
                 "database": "db",
-                "name": "cosmos-arm-in-serverless-world"
+                "name": "cosmos-ultimate-guide-arm"
             },
             "type": "object"
         },
@@ -30,7 +30,7 @@
                 "tags": {
                     "CosmosAccountType": "Non-Production",
                     "LastModifiedDate": "[utcNow()]",
-                    "Project": "Azure Resource Manager In A Serverless World",
+                    "Project": "The Ultimate Guide To Building Better Azure ARM Templates",
                     "Purpose": "Session",
                     "defaultExperience": "Core (SQL)"
                 }

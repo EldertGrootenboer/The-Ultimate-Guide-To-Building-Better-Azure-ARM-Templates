@@ -13,7 +13,7 @@
             "defaultValue": {
                 "container": "[concat('container-', uniqueString(resourceGroup().name))]",
                 "database": "[concat('db-', uniqueString(resourceGroup().name))]",
-                "name": "[concat('cosmos-arm-in-serverless-world-', uniqueString(resourceGroup().name))]"
+                "name": "[concat('cosmos-ultimate-guide-arm-templates-', uniqueString(resourceGroup().name))]"
             },
             "type": "object"
         },
