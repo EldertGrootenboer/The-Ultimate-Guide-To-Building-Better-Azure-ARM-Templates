@@ -1,0 +1,86 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "apiManagement": {
+            "defaultValue": {
+                "name": "[concat('apim-ultimate-guide-to-building-better-azure-arm-templates-', uniqueString(resourceGroup().name))]",
+                "publisherEmail": "eldert@eldert.net",
+                "publisherName": "EPH",
+                "sku": "Developer"
+            },
+            "type": "object"
+        },
+        "applicationInsights": {
+            "defaultValue": {
+                "name": "appi-ultimate-guide-to-building-better-azure-arm-templates"
+            },
+            "type": "object"
+        },
+        "general": {
+            "defaultValue": {
+                "location": "[resourceGroup().location]",
+                "tags": {
+                    "LastModifiedDate": "[utcNow()]",
+                    "Project": "The Ultimate Guide To Building Better Azure ARM Templates",
+                    "Purpose": "Session"
+                }
+            },
+            "type": "object"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.ApiManagement/service",
+            "apiVersion": "2019-01-01",
+            "name": "[parameters('apiManagement').name]",
+            "location": "[parameters('general').location]",
+            "tags": "[parameters('general').tags]",
+            "sku": {
+                "name": "[parameters('apiManagement').sku]"
+            },
+            "identity": {
+                "type": "SystemAssigned"
+            },
+            "properties": {
+                "publisherEmail": "[parameters('apiManagement').publisherEmail]",
+                "publisherName": "[parameters('apiManagement').publisherName]"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/loggers",
+            "apiVersion": "2019-01-01",
+            "name": "[concat(parameters('apiManagement').name, '/', parameters('applicationInsights').name)]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('apiManagement').name)]"
+            ],
+            "properties": {
+                "loggerType": "applicationInsights",
+                "credentials": {
+                    "instrumentationKey": "[reference(resourceId('Microsoft.Insights/components', parameters('applicationInsights').name), '2014-04-01').InstrumentationKey]"
+                },
+                "isBuffered": true,
+                "resourceId": "[resourceId('Microsoft.Insights/components', parameters('applicationInsights').name)]"
+            }
+        },
+        {
+            "type": "Microsoft.ApiManagement/service/diagnostics",
+            "apiVersion": "2019-01-01",
+            "name": "[concat(parameters('apiManagement').name, '/applicationinsights')]",
+            "dependsOn": [
+                "[resourceId('Microsoft.ApiManagement/service', parameters('apiManagement').name)]",
+                "[resourceId('Microsoft.ApiManagement/service/loggers', parameters('apiManagement').name, parameters('applicationInsights').name)]"
+            ],
+            "properties": {
+                "alwaysLog": "allErrors",
+                "httpCorrelationProtocol": "Legacy",
+                "logClientIp": true,
+                "loggerId": "[resourceId('Microsoft.ApiManagement/service/loggers', parameters('apiManagement').name, parameters('applicationInsights').name)]",
+                "sampling": {
+                    "samplingType": "fixed",
+                    "percentage": 100
+                }
+            }
+        }
+    ]
+}

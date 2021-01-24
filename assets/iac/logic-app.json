@@ -1,0 +1,58 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "general": {
+            "defaultValue": {
+                "location": "[resourceGroup().location]",
+                "tags": {
+                    "LastModifiedDate": "[utcNow()]",
+                    "Project": "The Ultimate Guide To Building Better Azure ARM Templates",
+                    "Purpose": "Session"
+                }
+            },
+            "type": "object"
+        },
+        "logicApp": {
+            "defaultValue": {
+                "name": "logic-ultimate-guide-to-building-better-azure-arm-templates-sample"
+            },
+            "type": "object"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "apiVersion": "2017-07-01",
+            "name": "[parameters('logicApp').name]",
+            "location": "[parameters('general').location]",
+            "tags": "[parameters('general').tags]",
+            "properties": {
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Day",
+                                "interval": 1
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "HTTP": {
+                            "runAfter": {},
+                            "type": "Http",
+                            "inputs": {
+                                "method": "GET",
+                                "uri": "https://www.google.com"
+                            }
+                        }
+                    }
+                },
+                "state": "Enabled"
+            }
+        }
+    ]
+}

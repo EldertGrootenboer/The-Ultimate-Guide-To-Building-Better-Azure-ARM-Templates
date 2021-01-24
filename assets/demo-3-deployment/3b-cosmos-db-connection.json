@@ -1,0 +1,49 @@
+{
+    /*
+    What we will be doing in this template.
+        1. Create Cosmos DB connection
+        2. Use functions to get secrets and id
+        3. Check which parameter values need to be provided using https://resources.azure.com/raw
+            GET https://management.azure.com/subscriptions/<<subscription-id>>/providers/Microsoft.Web/locations/westeurope/managedApis/documentdb?api-version=2016-06-01
+    */
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "cosmosDb": {
+            "defaultValue": {
+                "container": "[concat('container-', uniqueString(resourceGroup().name))]",
+                "database": "[concat('db-', uniqueString(resourceGroup().name))]",
+                "name": "[concat('cosmos-arm-in-serverless-world-', uniqueString(resourceGroup().name))]"
+            },
+            "type": "object"
+        },
+        "location": {
+            "type": "string"
+        },
+        "logicApps": {
+            "defaultValue": {
+                "apiConnections": {
+                    "cosmosDb": "documentdb"
+                }
+            },
+            "type": "object"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Web/connections",
+            "apiVersion": "2016-06-01",
+            "name": "[parameters('logicApps').apiConnections.cosmosDb]",
+            "location": "[parameters('location')]",
+            "properties": {
+                "parameterValues": {
+                    "databaseAccount": "[parameters('cosmosDb').name]",
+                    "accessKey": "[listKeys(resourceId('Microsoft.DocumentDB/databaseAccounts', parameters('cosmosDb').name), '2020-04-01').primaryMasterKey]"
+                },
+                "api": {
+                    "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', parameters('location'), 'documentdb')]"
+                }
+            }
+        }
+    ]
+}

@@ -1,0 +1,88 @@
+{
+    /*
+    What we will be doing in this template.
+        1. Create linked template
+        2. Set correct dependencies between templates
+        3. Use relativePath to create template spec
+    */
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "defaultValue": "[resourceGroup().location]",
+            "type": "string"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "cosmosDB",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "relativePath": "../demo-3-deployment/3a-cosmos-db.json"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "storageAccount",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "relativePath": "../demo-3-deployment/3d-storage-account.json"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "cosmosDbConnection",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'cosmosDB')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "relativePath": "../demo-3-deployment/3b-cosmos-db-connection.json"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    }
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2020-06-01",
+            "name": "logicApp",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'cosmosDbConnection')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "relativePath": "../demo-3-deployment/3c-logic-app.json"
+                },
+                "parameters": {
+                    "location": {
+                        "value": "[parameters('location')]"
+                    }
+                }
+            }
+        }
+    ]
+}

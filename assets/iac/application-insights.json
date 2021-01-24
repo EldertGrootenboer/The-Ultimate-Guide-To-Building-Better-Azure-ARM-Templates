@@ -1,0 +1,41 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "applicationInsights": {
+            "defaultValue": {
+                "name": "appi-ultimate-guide-to-building-better-azure-arm-templates"
+            },
+            "type": "object"
+        },
+        "general": {
+            "defaultValue": {
+                "location": "[resourceGroup().location]",
+                "tags": {
+                    "LastModifiedDate": "[utcNow()]",
+                    "Project": "The Ultimate Guide To Building Better Azure ARM Templates",
+                    "Purpose": "Session"
+                }
+            },
+            "type": "object"
+        }
+    },
+    "resources": [
+        {
+            "type": "microsoft.insights/components",
+            "apiVersion": "2018-05-01-preview",
+            "name": "[parameters('applicationInsights').name]",
+            "location": "[parameters('general').location]",
+            "tags": "[parameters('general').tags]",
+            "kind": "web",
+            "properties": {
+                "Application_Type": "web",
+                "Flow_Type": "Redfield",
+                "Request_Source": "IbizaAIExtension",
+                "RetentionInDays": 90,
+                "publicNetworkAccessForIngestion": "Enabled",
+                "publicNetworkAccessForQuery": "Enabled"
+            }
+        }
+    ]
+}

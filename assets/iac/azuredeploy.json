@@ -1,0 +1,53 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "gitHub": {
+            "defaultValue": {
+                "baseUri": "https://raw.githubusercontent.com/EldertGrootenboer/The-Ultimate-Guide-To-Building-Better-Azure-ARM-Templates/master/assets/iac/"
+            },
+            "type": "object"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "applicationInsights",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[uri(parameters('gitHub').baseUri, 'application-insights.json')]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "logicApp",
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[uri(parameters('gitHub').baseUri, 'logic-app.json')]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        },
+        {
+            "type": "Microsoft.Resources/deployments",
+            "apiVersion": "2019-10-01",
+            "name": "apiManagement",
+            "dependsOn": [
+                "[resourceId('Microsoft.Resources/deployments', 'applicationInsights')]"
+            ],
+            "properties": {
+                "mode": "Incremental",
+                "templateLink": {
+                    "uri": "[uri(parameters('gitHub').baseUri, 'api-management.json')]",
+                    "contentVersion": "1.0.0.0"
+                }
+            }
+        }
+    ]
+}

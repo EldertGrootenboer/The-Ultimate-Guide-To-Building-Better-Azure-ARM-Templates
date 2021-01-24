@@ -1,0 +1,120 @@
+{
+    /*
+    Finished template with below constructs.
+        1. Create ARM template
+        2. Add Cosmos DB resource
+        3. Parameterize template
+        4. Use functions for names
+        5. Add child resources
+        6. Create multiple containers using copy loop
+        7. Update dependsOn references
+        8. Create parameter file
+    */
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "cosmosDb": {
+            "defaultValue": {
+                "containers": [
+                    "[concat('container-1')]",
+                    "[concat('container-2')]"
+                ],
+                "database": "db",
+                "name": "cosmos-arm-in-serverless-world"
+            },
+            "type": "object"
+        },
+        "general": {
+            "defaultValue": {
+                "tags": {
+                    "CosmosAccountType": "Non-Production",
+                    "LastModifiedDate": "[utcNow()]",
+                    "Project": "Azure Resource Manager In A Serverless World",
+                    "Purpose": "Session",
+                    "defaultExperience": "Core (SQL)"
+                }
+            },
+            "type": "object"
+        },
+        "location": {
+            "defaultValue": "westeurope",
+            "type": "string"
+        }
+    },
+    "variables": {
+        "databaseName": "[concat(parameters('cosmosDb').database, '-', uniqueString(resourceGroup().name))]",
+        "instanceName": "[concat(parameters('cosmosDb').name, '-', uniqueString(resourceGroup().name))]"
+    },
+    "resources": [
+        // Instance
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts",
+            "name": "[variables('instanceName')]",
+            "apiVersion": "2020-04-01",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('general').tags]",
+            "kind": "GlobalDocumentDB",
+            "properties": {
+                "consistencyPolicy": {
+                    "defaultConsistencyLevel": "Eventual",
+                    "maxStalenessPrefix": 1,
+                    "maxIntervalInSeconds": 5
+                },
+                "locations": [
+                    {
+                        "locationName": "[parameters('location')]",
+                        "failoverPriority": 0
+                    }
+                ],
+                "databaseAccountOfferType": "Standard",
+                "capabilities": [
+                    {
+                        "name": "EnableServerless"
+                    }
+                ],
+                "enableFreeTier": false
+            }
+        },
+        // Database
+        {
+            "type": "Microsoft.DocumentDB/databaseAccounts/sqlDatabases",
+            "name": "[concat(variables('instanceName'), '/', variables('databaseName'))]",
+            "apiVersion": "2020-04-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts', variables('instanceName'))]"
+            ],
+            "properties": {
+                "resource": {
+                    "id": "[variables('databaseName')]"
+                },
+                "options": {}
+            }
+        },
+        // Container
+        {
+            "copy": {
+                "name": "containersLoop",
+                "count": "[length(parameters('cosmosDb').containers)]"
+            },
+            "type": "Microsoft.DocumentDb/databaseAccounts/sqlDatabases/containers",
+            "name": "[concat(variables('instanceName'), '/', variables('databaseName'), '/', parameters('cosmosDb').containers[copyIndex()])]",
+            "apiVersion": "2020-04-01",
+            "dependsOn": [
+                "[resourceId('Microsoft.DocumentDB/databaseAccounts/sqlDatabases', variables('instanceName'), variables('databaseName'))]"
+            ],
+            "properties": {
+                "resource": {
+                    "id": "[parameters('cosmosDb').containers[copyIndex()]]"
+                },
+                "partitionKey": {
+                    "paths": [
+                        "/EventName"
+                    ],
+                    "kind": "Hash"
+                },
+                "options": {}
+            }
+        }
+    ],
+    "outputs": {}
+}

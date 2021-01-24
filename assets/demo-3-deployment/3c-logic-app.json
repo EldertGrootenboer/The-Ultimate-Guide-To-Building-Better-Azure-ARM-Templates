@@ -1,0 +1,112 @@
+{
+    /*
+    What we will be doing in this template.
+        1. Export Logic App template
+        2. Parameterize
+        3. Update parameters object inside Logic App
+    */
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "cosmosDb": {
+            "defaultValue": {
+                "container": "[concat('container-', uniqueString(resourceGroup().name))]",
+                "database": "[concat('db-', uniqueString(resourceGroup().name))]"
+            },
+            "type": "object"
+        },
+        "general": {
+            "defaultValue": {
+                "tags": {
+                    "LastModifiedDate": "[utcNow()]",
+                    "Project": "The Ultimate Guide To Building Better Azure ARM Templates",
+                    "Purpose": "Session"
+                }
+            },
+            "type": "object"
+        },
+        "location": {
+            "type": "string"
+        },
+        "logicApp": {
+            "defaultValue": {
+                "apiConnections": {
+                    "cosmosDb": "documentdb"
+                },
+                "event": "Live Demo",
+                "name": "logic-ultimate-guide-to-building-better-azure-arm-templates"
+            },
+            "type": "object"
+        }
+    },
+    "resources": [
+        {
+            "type": "Microsoft.Logic/workflows",
+            "name": "[parameters('logicApp').name]",
+            "apiVersion": "2017-07-01",
+            "location": "[parameters('location')]",
+            "tags": "[parameters('general').tags]",
+            "properties": {
+                "definition": {
+                    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+                    "contentVersion": "1.0.0.0",
+                    "parameters": {
+                        "$connections": {
+                            "type": "Object"
+                        },
+                        "EventName": {
+                            "type": "String"
+                        }
+                    },
+                    "triggers": {
+                        "Recurrence": {
+                            "recurrence": {
+                                "frequency": "Minute",
+                                "interval": 1
+                            },
+                            "type": "Recurrence"
+                        }
+                    },
+                    "actions": {
+                        "Create_or_update_document": {
+                            "runAfter": {
+                            },
+                            "type": "ApiConnection",
+                            "inputs": {
+                                "body": {
+                                    "Event": "@{parameters('EventName')}",
+                                    "Text": "Hello from @{parameters('EventName')} at @{utcNow()}",
+                                    "id": "@{guid()}"
+                                },
+                                "host": {
+                                    "connection": {
+                                        "name": "@parameters('$connections')['documentdb']['connectionId']"
+                                    }
+                                },
+                                "method": "post",
+                                "path": "[concat('/dbs/@{encodeURIComponent(''', parameters('cosmosDb').database, ''')}/colls/@{encodeURIComponent(''', parameters('cosmosDb').container, ''')}/docs')]"
+                            }
+                        }
+                    },
+                    "outputs": {
+                    }
+                },
+                "parameters": {
+                    "$connections": {
+                        "value": {
+                            "documentdb": {
+                                "connectionId": "[resourceId('Microsoft.Web/connections', parameters('logicApp').apiConnections.cosmosDb)]",
+                                "connectionName": "documentdb",
+                                "id": "[subscriptionResourceId('Microsoft.Web/locations/managedApis', parameters('location'), 'documentdb')]"
+                            }
+                        }
+                    },
+                    "EventName": {
+                        "value": "[parameters('logicApp').event]"
+                    }
+                },
+                "state": "Enabled"
+            }
+        }
+    ]
+}
