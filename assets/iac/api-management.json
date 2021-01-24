@@ -4,7 +4,7 @@
     "parameters": {
         "apiManagement": {
             "defaultValue": {
-                "name": "[concat('apim-ultimate-guide-to-building-better-azure-arm-templates-', uniqueString(resourceGroup().name))]",
+                "name": "[concat('apim-ultimate-guide-arm-templates-', uniqueString(resourceGroup().name))]",
                 "publisherEmail": "eldert@eldert.net",
                 "publisherName": "EPH",
                 "sku": "Developer"

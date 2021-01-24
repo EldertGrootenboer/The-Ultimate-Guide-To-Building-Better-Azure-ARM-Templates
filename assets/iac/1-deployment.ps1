@@ -8,6 +8,7 @@ $resourceGroupName = "rg-ultimate-guide-to-building-better-azure-arm-templates"
 $basePath = "C:\Users\elder\OneDrive\Sessions\The-Ultimate-Guide-To-Building-Better-Azure-ARM-Templates"
 
 # Login to Azure
+# Connect-AzAccount
 Get-AzSubscription -SubscriptionName $subscriptionName | Set-AzContext
 
 # Create the resource group and deploy the resources
