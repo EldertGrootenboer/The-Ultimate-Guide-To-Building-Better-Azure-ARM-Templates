@@ -1,0 +1,72 @@
+trigger:
+  batch: true
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - assets/demo-3-deployment
+    - .devops/pipelines/main.yml
+    exclude:
+    - README.md
+
+variables:
+  location: West Europe
+
+# Use build definition name for build/release numbers
+name: $(BuildDefinitionName).$(Year:yy)$(DayOfYear)$(rev:.r)
+
+# Call the build process template
+stages:
+- stage: Validation
+  jobs:
+  - job: Validate
+    displayName: Validate ARM Templates
+    continueOnError: false
+    pool:
+      name: 'Azure pipelines'
+      vmImage: windows-2019
+    workspace:
+      clean: all
+    steps:
+    - task: AzureResourceGroupDeployment@2
+      name: Validate_ARM_Templates
+      inputs:
+        azureSubscription: Visual Studio Enterprise
+        action: 'Create Or Update Resource Group'
+        resourceGroupName: rg-ultimate-guide-to-building-better-azure-arm-templates
+        location: $(location)
+        templateLocation: 'Linked artifact'
+        csmFile: assets/demo-3-deployment/azuredeploy.json
+        deploymentMode: 'Validation'
+
+    - publish: assets/demo-3-deployment
+      displayName: 'Publish Artifacts'
+      artifact: demo-3-deployment
+
+- stage: Deployment 
+  dependsOn: Validation
+  condition: succeeded()
+  jobs:
+  - deployment: 
+    environment: Production
+    continueOnError: false
+    pool:
+      name: 'Azure pipelines'
+      vmImage: windows-2019
+    workspace:
+      clean: all
+    strategy: 
+      runOnce:
+        deploy:
+          steps:  
+          - task: AzureResourceGroupDeployment@2
+            name: Deploy_ARM_Templates
+            inputs:
+              azureSubscription: Visual Studio Enterprise
+              action: 'Create Or Update Resource Group'
+              resourceGroupName: rg-ultimate-guide-to-building-better-azure-arm-templates
+              location: $(location)
+              templateLocation: 'Linked artifact'
+              csmFile: '$(Pipeline.Workspace)/demo-3-deployment/azuredeploy.json'
+              deploymentMode: 'Incremental'

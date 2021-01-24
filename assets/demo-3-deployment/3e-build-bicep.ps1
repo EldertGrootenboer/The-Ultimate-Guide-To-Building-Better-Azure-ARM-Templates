@@ -1,5 +1,5 @@
 # What we will be doing in this script.
-#   1. Use the What-If switch to determine the changes that will happen to our resources
+#   1. Build the ARM template using Bicep
 
 $basePath = "C:\Users\elder\OneDrive\Sessions\The-Ultimate-Guide-To-Building-Better-Azure-ARM-Templates"
 
