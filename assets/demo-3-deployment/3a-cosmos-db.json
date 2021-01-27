@@ -11,8 +11,8 @@
         "cosmosDb": {
             "defaultValue": {
                 "containers": [
-                    "[concat('container-1')]",
-                    "[concat('container-2')]"
+                    "[concat('cn-1')]",
+                    "[concat('cn-2')]"
                 ],
                 "database": "db",
                 "name": "cosmos-ultimate-guide-arm"
@@ -22,7 +22,7 @@
         "general": {
             "defaultValue": {
                 "tags": {
-                    "CosmosAccountType": "Non-Production",
+                    "CosmosAccountType": "Production",
                     "LastModifiedDate": "[utcNow()]",
                     "Project": "The Ultimate Guide To Building Better Azure ARM Templates",
                     "Purpose": "Session",
@@ -55,7 +55,7 @@
             "kind": "GlobalDocumentDB",
             "properties": {
                 "consistencyPolicy": {
-                    "defaultConsistencyLevel": "Eventual",
+                    "defaultConsistencyLevel": "Strong",
                     "maxStalenessPrefix": 1,
                     "maxIntervalInSeconds": 5
                 },
