@@ -3,4 +3,4 @@
 
 $basePath = "C:\Users\elder\OneDrive\Sessions\The-Ultimate-Guide-To-Building-Better-Azure-ARM-Templates"
 
-az bicep build --files "$basePath\assets\demo-3-deployment\3d-storage-account.bicep"
+az bicep build --file "$basePath\assets\demo-3-deployment\3d-storage-account.bicep"

@@ -1,6 +1,13 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.63.48766",
+      "templateHash": "18039305862297081221"
+    }
+  },
   "parameters": {
     "location": {
       "type": "string"
@@ -12,7 +19,7 @@
     "tags": {
       "type": "object",
       "defaultValue": {
-        "LastModifiedDate": "[format('{0}', utcNow())]",
+        "LastModifiedDate": "[utcNow()]",
         "Project": "The Ultimate Guide To Building Better Azure ARM Templates",
         "Purpose": "Session"
       }
@@ -38,6 +45,5 @@
         "name": "[if(parameters('globalRedundancy'), 'Standard_GRS', 'Standard_LRS')]"
       }
     }
-  ],
-  "outputs": {}
+  ]
 }
